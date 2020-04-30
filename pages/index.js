@@ -1,57 +1,57 @@
 import Layout from "../components/Layout";
 import RestaurantListItem from "../components/RestaurantListItem";
+import { gql } from "apollo-boost";
+import withApollo from "../lib/withApollo";
+import { useQuery } from "@apollo/react-hooks";
 
-export default () => {
-  const tempRestaurants = [
-    {
-      id: "1",
-      cover: [
-        {
-          url: "/uploads/29d5f5ef9bbc4a438cfb9a9299fd0607.jpeg"
-        },
-        {
-          url: "/uploads/48f5da81ca8e460eb29591605fa6edba.jpeg"
-        },
-        {
-          url: "/uploads/2f600e2114994432ae78a3d05e94e133.jpeg"
-        },
-        {
-          url: "/uploads/063efd98c5b7401f9ea00864211095ed.jpeg"
-        }
-      ],
-      name: "ASPIC",
-      price: 4, // "_4" -> 4
-      district: "9th", // "_9th" -> "9th"
-      category: {
-        name: "French"
-      },
-      note: 5
-    },
-    {
-      id: "28",
-      cover: [
-        {
-          url: "/uploads/f12f7dbc3e4d4c65ab6783d4f6fab084.jpeg"
-        },
-        {
-          url: "/uploads/4b66f90a305f43f1b6e5ea76e65cbb31.jpeg"
-        },
-        {
-          url: "/uploads/26bd1244a0e84b9da76bdff1187df008.jpeg"
-        },
-        {
-          url: "/uploads/cc91373a9b194875a10f8b6b4a112855.jpeg"
-        }
-      ],
-      name: "Aux Enfants Gates",
-      price: 2,
-      district: "14th",
-      category: {
-        name: "Contemporary"
-      },
-      note: 5
+const GET_RESTAURANTS = gql`
+  query($limit: Int, $start: Int, $sort: String, $where: JSON) {
+    restaurants(limit: $limit, start: $start, sort: $sort, where: $where) {
+      id
+      cover(limit: 1) {
+        url
+      }
+      name
+      price
+      district
+      category {
+        name
+      }
+      note
     }
-  ];
+    restaurantsConnection {
+      aggregate {
+        count
+      }
+    }
+  }
+`;
+
+/**
+ * TODO: use _app.js for apollo provider https://www.npmjs.com/package/next-with-apollo
+ *
+ * Now your page can use anything from @apollo/react-hooks or react-apollo.
+ *
+ * If you want to add Apollo in _app instead of per page, go to Using _app.
+ */
+function Index() {
+  const result = useQuery(GET_RESTAURANTS, {
+    variables: {
+      limit: 15,
+      start: 0,
+      sort: "name:ASC",
+      where: null
+    },
+  });
+
+  const { loading, data } = result;
+
+  // TODO: fetch data -> SSR
+  if (loading) return "Loading...";
+  console.log(data);
+
+  // TODO: map data price: "_4" => 5, district: "_9th" => "9th"
+  const tempRestaurants = data.restaurants;
   const apiUrl = "https://foodadvisor-api.strapi.io";
 
   return (
@@ -59,6 +59,7 @@ export default () => {
       <div className="wrapper">
         <h1 className="title">Best restaurants in Paris</h1>
         {/* TODO: implement Filters */}
+        {/* TODO: add restaurant list component */}
         <ul>
           {tempRestaurants.map(restaurant => (
             <li key={restaurant.id}>
@@ -97,4 +98,6 @@ export default () => {
       `}</style>
     </Layout>
   );
-};
+}
+
+export default withApollo(Index);
