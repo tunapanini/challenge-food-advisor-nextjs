@@ -1,9 +1,7 @@
-import Link from 'next/link'
+import Layout from "../components/Layout";
+
 export default () => (
-  <div>
-    Hello World.{' '}
-    <Link href="/about">
-      <a>About</a>
-    </Link>
-  </div>
-)
+  <Layout>
+    <h1 class="title">Restaurants</h1>
+  </Layout>
+);
