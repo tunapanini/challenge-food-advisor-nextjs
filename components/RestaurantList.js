@@ -26,6 +26,8 @@ const GET_RESTAURANTS = gql`
   }
 `;
 
+const apiUrl = "https://foodadvisor-api.strapi.io";
+
 /**
  * TODO: use _app.js for apollo provider https://www.npmjs.com/package/next-with-apollo
  *
@@ -34,7 +36,7 @@ const GET_RESTAURANTS = gql`
  * If you want to add Apollo in _app instead of per page, go to Using _app.
  */
 function RestaurantList() {
-  const result = useQuery(GET_RESTAURANTS, {
+  const { loading, error, data } = useQuery(GET_RESTAURANTS, {
     variables: {
       limit: 15,
       start: 0,
@@ -43,28 +45,23 @@ function RestaurantList() {
     }
   });
 
-  const apiUrl = "https://foodadvisor-api.strapi.io";
-  const { loading, data } = result;
-
   // TODO: fetch data -> SSR
   if (loading) return "Loading...";
-  // TODO: map data price: "_4" => 5, district: "_9th" => "9th"
-  console.log(data);
-
-  const tempRestaurants = data.restaurants;
+  if (error) return `Error ${error}`;
+  console.log("data", data);
 
   return (
     <>
       <ul>
-        {tempRestaurants.map(restaurant => (
+        {data.restaurants.map(restaurant => (
           <li key={restaurant.id}>
             <RestaurantListItem
               name={restaurant.name}
               coverUrl={apiUrl + restaurant.cover[0].url}
-              price={restaurant.price}
+              price={restaurant.price.substring(1)}
               category={restaurant.category.name}
-              district={restaurant.district}
-              starRating={Math.floor(restaurant.note)}
+              district={restaurant.district.substring(1)}
+              starRating={restaurant.note}
             />
           </li>
         ))}
