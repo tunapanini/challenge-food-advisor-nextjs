@@ -48,7 +48,6 @@ function RestaurantList() {
 
   // TODO: fetch data -> SSR
   if (loading) return "Loading...";
-
   // TODO: map data price: "_4" => 5, district: "_9th" => "9th"
   console.log(data);
 
@@ -83,12 +82,6 @@ function RestaurantList() {
       `}</style>
     </>
   );
-}
-
-export async function getServerSideProps(context) {
-  return {
-    props: {}
-  };
 }
 
 export default withApollo(RestaurantList);
